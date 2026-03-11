@@ -13,41 +13,65 @@ class PostProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  /// Cargar posts desde el servicio
   Future<void> loadPosts() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
-
       final fetchedPosts = await _service.fetchPosts();
-
       _posts = fetchedPosts;
     } catch (e) {
       _error = "Error al cargar posts";
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 
+  /// Like / Unlike
   void toggleLike(PostModel post) {
     post.isLiked = !post.isLiked;
-    post.likeCount += post.isLiked ? 1 : -1;
+
+    if (post.isLiked) {
+      post.likeCount++;
+    } else {
+      post.likeCount--;
+    }
+
     notifyListeners();
   }
 
-  void addPost(PostModel post) {
-    _posts.insert(0, post);
+  /// Crear nuevo post
+  void addPost({
+    required String username,
+    required String caption,
+    required String imageUrl,
+    required String userImage,
+  }) {
+    final newPost = PostModel(
+      username: username,
+      caption: caption,
+      imageUrl: imageUrl,
+      userImage: userImage,
+      likeCount: 0,
+      comments: [],
+    );
+
+    _posts.insert(0, newPost);
     notifyListeners();
   }
 
+  /// Eliminar post
   void removePost(PostModel post) {
     _posts.remove(post);
     notifyListeners();
   }
 
+  /// Agregar comentario
   void addComment(PostModel post, String comment) {
-  post.comments.add(comment);
-  notifyListeners();
+    post.comments.add(comment);
+    notifyListeners();
   }
 }

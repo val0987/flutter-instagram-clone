@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/post_model.dart';
 import '../services/post_provider.dart';
 
 class NewPostScreen extends StatefulWidget {
@@ -15,46 +14,60 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final TextEditingController _imageController = TextEditingController();
 
   void _publishPost() {
-    if (_captionController.text.isEmpty ||
-        _imageController.text.isEmpty) {
+    if (_captionController.text.isEmpty || _imageController.text.isEmpty) {
       return;
     }
 
-    final newPost = PostModel(
+    context.read<PostProvider>().addPost(
       username: "mi_usuario",
       caption: _captionController.text,
       imageUrl: _imageController.text,
+      userImage: "https://i.pravatar.cc/150?img=20",
     );
-
-    context.read<PostProvider>().addPost(newPost);
 
     Navigator.pop(context);
   }
 
   @override
+  void dispose() {
+    _captionController.dispose();
+    _imageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nueva publicación"),
-      ),
+      appBar: AppBar(title: const Text("Nueva publicación")),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
+
         child: Column(
           children: [
+            /// CAPTION
             TextField(
               controller: _captionController,
-              decoration: const InputDecoration(
-                labelText: "Descripción",
-              ),
+              decoration: const InputDecoration(labelText: "Descripción"),
             ),
+
             const SizedBox(height: 16),
+
+            /// IMAGE URL
             TextField(
               controller: _imageController,
-              decoration: const InputDecoration(
-                labelText: "URL de imagen",
-              ),
+              decoration: const InputDecoration(labelText: "URL de imagen"),
             ),
+
             const SizedBox(height: 24),
+
+            /// PREVIEW DE IMAGEN
+            if (_imageController.text.isNotEmpty)
+              Image.network(_imageController.text, height: 200),
+
+            const SizedBox(height: 24),
+
+            /// BOTON PUBLICAR
             ElevatedButton(
               onPressed: _publishPost,
               child: const Text("Publicar"),
