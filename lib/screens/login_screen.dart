@@ -1,120 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  bool _isButtonEnabled = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
 
-      body: Center(
-        child: SingleChildScrollView(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+
           child: Column(
             children: [
-              /// LOGIN BOX
-              Container(
-                width: 350,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 30,
-                ),
 
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xff262626)),
-                ),
+              const SizedBox(height: 70),
 
-                child: Column(
-                  children: [
-                    const Text(
-                      "Instagram",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    _buildUsernameField(),
-
-                    const SizedBox(height: 10),
-
-                    _buildPasswordField(),
-
-                    const SizedBox(height: 16),
-
-                    _buildLoginButton(),
-
-                    const SizedBox(height: 20),
-
-                    _buildDivider(),
-
-                    const SizedBox(height: 20),
-
-                    _buildFacebookLogin(),
-
-                    const SizedBox(height: 15),
-
-                    const Text(
-                      "Forgot password?",
-                      style: TextStyle(color: Colors.blue, fontSize: 12),
-                    ),
-                  ],
+              /// LOGO
+              Center(
+                child: Image.asset(
+                  "assets/images/instagram_logo.png",
+                  height: 60,
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 60),
 
-              /// SIGNUP BOX
-              Container(
-                width: 350,
-                padding: const EdgeInsets.symmetric(vertical: 20),
+              /// CUENTAS
+              _accountCard(context, "eysoyvale", "eysoyvale@email.com"),
 
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xff262626)),
-                ),
+              const SizedBox(height: 16),
 
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              _accountCard(context, "isaa._wth", "isaa@email.com"),
 
-                  children: const [
-                    Text(
-                      "Don't have an account?",
-                      style: TextStyle(color: Colors.white),
-                    ),
+              const SizedBox(height: 20),
 
-                    SizedBox(width: 5),
+              /// LOGIN OTRA CUENTA
+              _loginOtherAccount(context),
 
-                    Text(
-                      "Sign up",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const Spacer(),
 
-              const SizedBox(height: 40),
+              /// CREAR CUENTA
+              _createAccountButton(),
 
-              /// FOOTER
+              const SizedBox(height: 20),
+
               const Text(
-                "Meta · About · Blog · Jobs · Help · Privacy · Terms",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                "Meta",
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
               ),
+
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -122,113 +63,258 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildUsernameField() {
-    return TextField(
-      controller: _usernameController,
-      onChanged: (_) => _validateFields(),
+  /// TARJETA PERFIL
+  Widget _accountCard(BuildContext context, String username, String email) {
+    return GestureDetector(
+      onTap: () {
+        _showPasswordDialog(context, email);
+      },
 
-      style: const TextStyle(color: Colors.white),
+      child: Container(
+        height: 70,
 
-      decoration: InputDecoration(
-        hintText: "Phone number, username, or email",
-        hintStyle: const TextStyle(color: Colors.grey),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
 
-        filled: true,
-        fillColor: const Color(0xff121212),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xff2A2A2A)),
+        ),
 
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+        child: Row(
+          children: [
+
+            const CircleAvatar(
+              radius: 24,
+              backgroundColor: Colors.grey,
+            ),
+
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Text(
+                username,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.white54,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPasswordField() {
-    return TextField(
-      controller: _passwordController,
-      obscureText: true,
-      onChanged: (_) => _validateFields(),
+  /// DIALOGO CONTRASEÑA
+  void _showPasswordDialog(BuildContext context, String email) {
 
-      style: const TextStyle(color: Colors.white),
+    final passwordController = TextEditingController();
 
-      decoration: InputDecoration(
-        hintText: "Password",
-        hintStyle: const TextStyle(color: Colors.grey),
+    showDialog(
+      context: context,
 
-        filled: true,
-        fillColor: const Color(0xff121212),
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xff121212),
 
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+          title: const Text(
+            "Introduce tu contraseña",
+            style: TextStyle(color: Colors.white),
+          ),
+
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            style: const TextStyle(color: Colors.white),
+
+            decoration: const InputDecoration(
+              hintText: "Contraseña",
+              hintStyle: TextStyle(color: Colors.grey),
+            ),
+          ),
+
+          actions: [
+
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+
+                try {
+
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: email,
+                    password: passwordController.text.trim(),
+                  );
+
+                  Navigator.pop(context);
+
+                  Navigator.pushReplacementNamed(context, "/feed");
+
+                } on FirebaseAuthException catch (e) {
+
+                  String message = "Error de login";
+
+                  if (e.code == "wrong-password") {
+                    message = "Contraseña incorrecta";
+                  }
+
+                  if (e.code == "user-not-found") {
+                    message = "Usuario no existe";
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(message)),
+                  );
+                }
+              },
+
+              child: const Text("Entrar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// BOTON OTRA CUENTA
+  Widget _loginOtherAccount(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showLoginForm(context);
+      },
+
+      child: Container(
+        height: 55,
+
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xff2A2A2A)),
+        ),
+
+        child: const Center(
+          child: Text(
+            "Iniciar sesión en otra cuenta",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildLoginButton() {
-    return SizedBox(
-      width: double.infinity,
+  /// LOGIN MANUAL
+  void _showLoginForm(BuildContext context) {
 
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _isButtonEnabled
-              ? Colors.blue
-              : Colors.blue.withOpacity(0.4),
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xff121212),
+
+          title: const Text(
+            "Iniciar sesión",
+            style: TextStyle(color: Colors.white),
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              TextField(
+                controller: emailController,
+                style: const TextStyle(color: Colors.white),
+
+                decoration: const InputDecoration(
+                  hintText: "Email",
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+              ),
+
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+
+                decoration: const InputDecoration(
+                  hintText: "Contraseña",
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+
+          actions: [
+
+            ElevatedButton(
+              onPressed: () async {
+
+                try {
+
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                  );
+
+                  Navigator.pop(context);
+
+                  Navigator.pushReplacementNamed(context, "/feed");
+
+                } catch (e) {
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Error de autenticación"),
+                    ),
+                  );
+                }
+              },
+
+              child: const Text("Entrar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// CREAR CUENTA
+  Widget _createAccountButton() {
+    return Container(
+      height: 55,
+
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.blue),
+      ),
+
+      child: const Center(
+        child: Text(
+          "Crear cuenta nueva",
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
         ),
-
-        onPressed: _isButtonEnabled ? _handleLogin : null,
-
-        child: const Text("Log In"),
       ),
     );
-  }
-
-  Widget _buildDivider() {
-    return Row(
-      children: const [
-        Expanded(child: Divider(color: Color(0xff262626))),
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Text("OR", style: TextStyle(color: Colors.grey)),
-        ),
-
-        Expanded(child: Divider(color: Color(0xff262626))),
-      ],
-    );
-  }
-
-  Widget _buildFacebookLogin() {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-
-      children: [
-        Icon(Icons.facebook, color: Colors.blue),
-
-        SizedBox(width: 8),
-
-        Text(
-          "Log in with Facebook",
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  void _validateFields() {
-    final isValid =
-        _usernameController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty;
-
-    setState(() {
-      _isButtonEnabled = isValid;
-    });
-  }
-
-  void _handleLogin() {
-    Navigator.pushReplacementNamed(context, '/feed');
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

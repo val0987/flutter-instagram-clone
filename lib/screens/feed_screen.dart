@@ -1,309 +1,343 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../services/post_provider.dart';
-import '../models/post_model.dart';
-import '../widgets/stories_bar.dart';
-import '../widgets/search_panel.dart';
-
-class FeedScreen extends StatefulWidget {
+class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
 
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
-}
-
-class _FeedScreenState extends State<FeedScreen> {
-  bool _showSearch = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() => context.read<PostProvider>().loadPosts());
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final postProvider = context.watch<PostProvider>();
-
     return Scaffold(
       backgroundColor: Colors.black,
 
-      body: Stack(
-        children: [
-          /// FEED NORMAL
-          Row(
-            children: [
-              /// SIDEBAR
-              Container(
-                width: 240,
-                padding: const EdgeInsets.symmetric(vertical: 25),
+      /// APPBAR INSTAGRAM
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
 
-                decoration: const BoxDecoration(
-                  border: Border(right: BorderSide(color: Color(0xff262626))),
-                ),
+        leading: IconButton(
+          icon: const Icon(Icons.add_box_outlined),
+          onPressed: () {},
+        ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        "Instagram",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    _sidebarItem(Icons.home_outlined),
-
-                    _sidebarItem(
-                      Icons.search,
-                      onTap: () {
-                        setState(() {
-                          _showSearch = !_showSearch;
-                        });
-                      },
-                    ),
-
-                    _sidebarItem(Icons.explore_outlined),
-                    _sidebarItem(Icons.video_library_outlined),
-                    _sidebarItem(Icons.chat_bubble_outline),
-                    _sidebarItem(Icons.favorite_border),
-                    _sidebarItem(Icons.add_box_outlined),
-                    _sidebarItem(Icons.person_outline),
-                  ],
-                ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              "Instagram",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_down)
+          ],
+        ),
 
-              /// FEED CENTRAL
-              Expanded(
-                child: Center(
-                  child: SizedBox(
-                    width: 630,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite_border),
+            onPressed: () {},
+          )
+        ],
+      ),
 
-                    child: Builder(
-                      builder: (context) {
-                        if (postProvider.isLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
+      body: ListView(
+        children: const [
 
-                        if (postProvider.error != null) {
-                          return Center(
-                            child: Text(
-                              postProvider.error!,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }
+          StoriesBar(),
 
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          itemCount: postProvider.posts.length + 1,
+          Divider(color: Colors.white12),
 
-                          itemBuilder: (context, index) {
-                            /// STORIES
-                            if (index == 0) {
-                              return const Padding(
-                                padding: EdgeInsets.only(bottom: 30),
-                                child: StoriesBar(),
-                              );
-                            }
-
-                            final PostModel post =
-                                postProvider.posts[index - 1];
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 35),
-
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  /// HEADER POST
-                                  ListTile(
-                                    contentPadding: EdgeInsets.zero,
-
-                                    leading: CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage: NetworkImage(
-                                        post.userImage,
-                                      ),
-                                    ),
-
-                                    title: Text(
-                                      post.username,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-
-                                    trailing: const Icon(
-                                      Icons.more_horiz,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                  /// IMAGEN
-                                  AspectRatio(
-                                    aspectRatio: 1,
-                                    child: Image.network(
-                                      post.imageUrl,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 8),
-
-                                  /// BOTONES
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-
-                                        icon: Icon(
-                                          post.isLiked
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: post.isLiked
-                                              ? Colors.red
-                                              : Colors.white,
-                                        ),
-
-                                        onPressed: () {
-                                          postProvider.toggleLike(post);
-                                        },
-                                      ),
-
-                                      const SizedBox(width: 14),
-
-                                      const Icon(
-                                        Icons.chat_bubble_outline,
-                                        color: Colors.white,
-                                      ),
-
-                                      const SizedBox(width: 14),
-
-                                      const Icon(
-                                        Icons.send,
-                                        color: Colors.white,
-                                      ),
-
-                                      const Spacer(),
-
-                                      const Icon(
-                                        Icons.bookmark_border,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-
-                                  const SizedBox(height: 6),
-
-                                  Text(
-                                    "${post.likeCount} likes",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 4),
-
-                                  Text(
-                                    "${post.username} ${post.caption}",
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-
-              /// PANEL DERECHO
-              Container(
-                width: 320,
-                padding: const EdgeInsets.all(25),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 30),
-
-                    const Text(
-                      "Sugerencias para ti",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    _suggestion("usuario_1"),
-                    const SizedBox(height: 14),
-                    _suggestion("usuario_2"),
-                    const SizedBox(height: 14),
-                    _suggestion("usuario_3"),
-                  ],
-                ),
-              ),
-            ],
+          PostCard(
+            username: "valeria",
+            image:
+                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+            caption: "Día increíble ✨",
           ),
 
-          /// PANEL BUSCAR (OVERLAY)
-          if (_showSearch)
-            const Positioned(
-              left: 240,
-              top: 0,
-              bottom: 0,
-              child: SearchPanel(),
+          PostCard(
+            username: "alejo",
+            image:
+                "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+            caption: "Viaje increíble 🌎",
+          ),
+        ],
+      ),
+
+      /// NAVBAR
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+
+        items: const [
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "",
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: "",
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_outlined),
+            label: "",
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.video_library_outlined),
+            label: "",
+          ),
+
+          BottomNavigationBarItem(
+            icon: CircleAvatar(
+              radius: 12,
+              backgroundImage: NetworkImage(
+                "https://i.pravatar.cc/200",
+              ),
             ),
+            label: "",
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _sidebarItem(IconData icon, {VoidCallback? onTap}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+class StoriesBar extends StatelessWidget {
+  const StoriesBar({super.key});
 
-      child: GestureDetector(
-        onTap: onTap,
-        child: Icon(icon, color: Colors.white, size: 26),
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 110,
+
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 10,
+
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+
+            child: Column(
+              children: [
+
+                Container(
+                  padding: const EdgeInsets.all(3),
+
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFF58529),
+                        Color(0xFFDD2A7B),
+                        Color(0xFF8134AF),
+                      ],
+                    ),
+                  ),
+
+                  child: const CircleAvatar(
+                    radius: 30,
+                    backgroundImage:
+                        NetworkImage("https://i.pravatar.cc/300"),
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                Text(
+                  "user$index",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
+}
 
-  Widget _suggestion(String username) {
-    return Row(
+class PostCard extends StatefulWidget {
+  final String username;
+  final String image;
+  final String caption;
+
+  const PostCard({
+    super.key,
+    required this.username,
+    required this.image,
+    required this.caption,
+  });
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool liked = false;
+  bool showHeart = false;
+
+  void toggleLike() {
+    setState(() {
+      liked = !liked;
+    });
+  }
+
+  void doubleTapLike() {
+    setState(() {
+      liked = true;
+      showHeart = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 700), () {
+      setState(() {
+        showHeart = false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CircleAvatar(radius: 16),
 
-        const SizedBox(width: 10),
+        /// HEADER
+        ListTile(
+          leading: const CircleAvatar(
+            backgroundImage:
+                NetworkImage("https://i.pravatar.cc/200"),
+          ),
 
-        Expanded(
-          child: Text(username, style: const TextStyle(color: Colors.white)),
+          title: Text(
+            widget.username,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          subtitle: const Row(
+            children: [
+              Icon(Icons.music_note,
+                  size: 14, color: Colors.white70),
+              SizedBox(width: 4),
+              Text(
+                "Audio original",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ],
+          ),
+
+          trailing: const Icon(Icons.more_vert,
+              color: Colors.white),
         ),
 
-        const Text(
-          "Seguir",
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+        /// IMAGE
+        GestureDetector(
+          onDoubleTap: doubleTapLike,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+
+              Image.network(widget.image),
+
+              if (showHeart)
+                const Icon(
+                  Icons.favorite,
+                  color: Colors.white,
+                  size: 100,
+                )
+            ],
+          ),
         ),
+
+        /// ACTIONS
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+
+          child: Row(
+            children: [
+
+              GestureDetector(
+                onTap: toggleLike,
+                child: Icon(
+                  liked
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color:
+                      liked ? Colors.red : Colors.white,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              const Icon(Icons.chat_bubble_outline,
+                  color: Colors.white),
+
+              const SizedBox(width: 16),
+
+              const Icon(Icons.send_outlined,
+                  color: Colors.white),
+
+              const Spacer(),
+
+              const Icon(Icons.bookmark_border,
+                  color: Colors.white),
+            ],
+          ),
+        ),
+
+        /// LIKES
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            liked
+                ? "Liked by you and 120 others"
+                : "Liked by valeria and 120 others",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        /// CAPTION
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 10),
+
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: "${widget.username} ",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                TextSpan(
+                  text: widget.caption,
+                  style:
+                      const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 20),
       ],
     );
   }

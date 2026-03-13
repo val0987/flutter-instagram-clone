@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/screens/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import 'firebase_options.dart';
 import 'services/post_provider.dart';
 import 'screens/feed_screen.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  /// Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => PostProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => PostProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -25,8 +38,10 @@ class MyApp extends StatelessWidget {
       /// PRIMERA PANTALLA
       home: const LoginScreen(),
 
-      /// RUTAS (recomendado)
-      routes: {'/feed': (context) => const FeedScreen()},
+      /// RUTAS
+      routes: {
+        '/feed': (context) => const HomeScreen(),
+      },
     );
   }
 }

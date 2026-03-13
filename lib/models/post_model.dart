@@ -1,20 +1,32 @@
 class PostModel {
-  final String username;
-  final String caption;
-  final String imageUrl;
-  final String userImage;
+  String username;
+  String userImage;
+  String imageUrl;
+  String caption;
 
-  bool isLiked;
   int likeCount;
+  bool isLiked;
+
   List<String> comments;
 
   PostModel({
     required this.username,
-    required this.caption,
-    required this.imageUrl,
     required this.userImage,
+    required this.imageUrl,
+    required this.caption,
+    required this.likeCount,
     this.isLiked = false,
-    this.likeCount = 120,
     List<String>? comments,
   }) : comments = comments ?? [];
+
+  factory PostModel.fromMap(Map<String, dynamic> map) {
+    return PostModel(
+      username: map['username'] ?? '',
+      userImage: map['userImage'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      caption: map['caption'] ?? '',
+      likeCount: map['likes'] ?? 0,
+      comments: [],
+    );
+  }
 }
