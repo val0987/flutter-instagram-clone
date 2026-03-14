@@ -9,7 +9,7 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
+        stage('Get dependencies') {
             steps {
                 bat 'C:\\src\\flutter\\bin\\flutter.bat pub get'
             }
@@ -21,5 +21,16 @@ pipeline {
             }
         }
 
+        stage('Build APK') {
+            steps {
+                bat 'C:\\src\\flutter\\bin\\flutter.bat build apk --release'
+            }
+        }
+
+        stage('Archive APK') {
+            steps {
+                archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
+            }
+        }
     }
 }
