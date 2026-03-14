@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        ANDROID_HOME = 'C:\\Users\\valer\\AppData\\Local\\Android\\Sdk'
+        PATH = "C:\\Users\\valer\\AppData\\Local\\Android\\Sdk\\platform-tools;C:\\Users\\valer\\AppData\\Local\\Android\\Sdk\\cmdline-tools\\latest\\bin;${env.PATH}"
+    }
+
     stages {
 
         stage('Prepare Git safe directory') {
@@ -34,3 +39,4 @@ pipeline {
         }
     }
 }
+
