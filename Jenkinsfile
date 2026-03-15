@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     ANDROID_HOME = "C:\\Users\\valer\\AppData\\Local\\Android\\Sdk"
     ANDROID_SDK_ROOT = "C:\\Users\\valer\\AppData\\Local\\Android\\Sdk"
@@ -33,8 +32,5 @@ stages {
             archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
         }
     }
-
-}
-```
 
 }
