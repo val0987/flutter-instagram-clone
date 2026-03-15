@@ -2,17 +2,10 @@ pipeline {
     agent any
 
     environment {
-        ANDROID_HOME = 'C:\\Users\\valer\\AppData\\Local\\Android\\Sdk'
-        PATH = "C:\\Users\\valer\\AppData\\Local\\Android\\Sdk\\platform-tools;C:\\Users\\valer\\AppData\\Local\\Android\\Sdk\\cmdline-tools\\latest\\bin;${env.PATH}"
+        GITHUB_TOKEN = credentials('github-token')
     }
 
     stages {
-
-        stage('Prepare Git safe directory') {
-            steps {
-                bat 'git config --global --add safe.directory C:/src/flutter'
-            }
-        }
 
         stage('Get dependencies') {
             steps {
@@ -37,6 +30,19 @@ pipeline {
                 archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
             }
         }
+
+        stage('Upload APK to GitHub') {
+            steps {
+                bat """
+                curl -L ^
+                -H "Authorization: token %GITHUB_TOKEN%" ^
+                -H "Accept: application/vnd.github+json" ^
+                https://uploads.github.com/repos/val0987/flutter-instagram-clone/releases/1/assets?name=app-release.apk ^
+                --data-binary "@build/app/outputs/flutter-apk/app-release.apk"
+                """
+            }
+        }
     }
 }
+
 
