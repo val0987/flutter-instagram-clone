@@ -33,11 +33,8 @@ stages {
             archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
         }
     }
+
 }
 ```
 
 }
-
-
-
-
